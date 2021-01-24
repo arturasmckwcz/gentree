@@ -3,6 +3,7 @@ const {
   GraphQLString,
   GraphQLID,
   GraphQLSchema,
+  GraphQLList,
 } = require('graphql')
 
 const db = require('../../db') // needed for binding knex instance to Model
@@ -29,7 +30,12 @@ const PersonType = new GraphQLObjectType({
     birth: { type: GraphQLString },
     death: { type: GraphQLString },
     gender: { type: GraphQLString },
-    place_id: { type: GraphQLID },
+    place: {
+      type: PlaceType,
+      async resolve(parent, args) {
+        return await Place.query().findById(parseInt(parent.place_id))
+      },
+    },
   }),
 })
 
@@ -37,8 +43,18 @@ const SpouseType = new GraphQLObjectType({
   name: 'Spouse',
   fields: () => ({
     id: { type: GraphQLID },
-    husband_id: { type: GraphQLID },
-    wife_id: { type: GraphQLID },
+    husband: {
+      type: PersonType,
+      async resolve(parent, args) {
+        return await Person.query().findById(parseInt(parent.husband_id))
+      },
+    },
+    wife: {
+      type: PersonType,
+      async resolve(parent, args) {
+        return await Person.query().findById(parseInt(parent.wife_id))
+      },
+    },
     wedding: { type: GraphQLString },
     divorse: { type: GraphQLString },
   }),
@@ -48,9 +64,24 @@ const ParentType = new GraphQLObjectType({
   name: 'Parent',
   fields: () => ({
     id: { type: GraphQLID },
-    father_id: { type: GraphQLID },
-    mother_id: { type: GraphQLID },
-    child_id: { type: GraphQLID },
+    father: {
+      type: PersonType,
+      async resolve(parent, args) {
+        return await Person.query().findById(parseInt(parent.father_id))
+      },
+    },
+    mother: {
+      type: PersonType,
+      async resolve(parent, args) {
+        return await Person.query().findById(parseInt(parent.mother_id))
+      },
+    },
+    child: {
+      type: PersonType,
+      async resolve(parent, args) {
+        return await Person.query().findById(parseInt(parent.child_id))
+      },
+    },
   }),
 })
 
@@ -62,6 +93,12 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       async resolve(parent, args) {
         return await Place.query().findById(parseInt(args.id))
+      },
+    },
+    places: {
+      type: new GraphQLList(PlaceType),
+      async resolve(parent, args) {
+        return await Place.query()
       },
     },
     person: {
@@ -88,6 +125,57 @@ const RootQuery = new GraphQLObjectType({
   },
 })
 
-console.log('src/api/schema/schema.js')
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addPlace: {
+      type: PlaceType,
+      args: {
+        country: { type: GraphQLString },
+        place: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return await Place.query().insertAndFetch(args)
+      },
+    },
+    addPerson: {
+      type: PersonType,
+      args: {
+        first: { type: GraphQLString },
+        last: { type: GraphQLString },
+        birth: { type: GraphQLString },
+        death: { type: GraphQLString },
+        gender: { type: GraphQLString },
+        place_id: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return await Person.query().insertAndFetch(args)
+      },
+    },
+    addSpouse: {
+      type: SpouseType,
+      args: {
+        husband_id: { type: GraphQLID },
+        wife_id: { type: GraphQLID },
+        wedding: { type: GraphQLString },
+        divorse: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        return await Spouse.query().insertAndFetch(args)
+      },
+    },
+    addParent: {
+      type: ParentType,
+      args: {
+        father_id: { type: GraphQLID },
+        mother_id: { type: GraphQLID },
+        child_id: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return await Parent.query().insertAndFetch(args)
+      },
+    },
+  },
+})
 
-module.exports = new GraphQLSchema({ query: RootQuery })
+module.exports = new GraphQLSchema({ query: RootQuery, mutation: Mutation })

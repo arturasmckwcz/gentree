@@ -10,8 +10,6 @@ const api = require('./api')
 
 const app = express()
 
-console.log('src/app.js')
-
 app.use(morgan('dev'))
 app.use(helmet())
 app.use(cors())

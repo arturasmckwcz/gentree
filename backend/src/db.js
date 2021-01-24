@@ -7,6 +7,5 @@ const connectionConfig = knexConfig[enviroment]
 
 const connection = knex(connectionConfig)
 Model.knex(connection)
-console.log('Knex instance connected to db.')
 
 module.exports = connection

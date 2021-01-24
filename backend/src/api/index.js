@@ -6,8 +6,6 @@ const router = express.Router()
 const { graphqlHTTP } = require('express-graphql')
 const schema = require('./schema/schema')
 
-console.log('src/api/index.js')
-
 router.get('/', (req, res) => {
   res.json({
     message: 'GENTREE: go /api/gentree for GraphQL entry point',
