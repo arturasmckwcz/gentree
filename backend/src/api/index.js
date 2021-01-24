@@ -1,15 +1,19 @@
-const express = require('express');
+const express = require('express')
 
-const emojis = require('./emojis');
+const emojis = require('./emojis')
 
-const router = express.Router();
+const router = express.Router()
+const { graphqlHTTP } = require('express-graphql')
+const schema = require('./schema/schema')
+
+console.log('src/api/index.js')
 
 router.get('/', (req, res) => {
   res.json({
-    message: 'API - 👋🌎🌍🌏'
-  });
-});
+    message: 'GENTREE: go /api/gentree for GraphQL entry point',
+  })
+})
 
-router.use('/emojis', emojis);
+router.use('/gentree', graphqlHTTP({ schema }))
 
-module.exports = router;
+module.exports = router
