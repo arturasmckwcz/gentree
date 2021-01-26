@@ -25,6 +25,11 @@
       "type": "string",
       "title": "The birth date"
     },
+    "death": {
+      "$id": "#/properties/death",
+      "type": "string",
+      "title": "The death date"
+    },
     "gender": {
       "$id": "#/properties/gender",
       "type": "string",

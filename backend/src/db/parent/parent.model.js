@@ -13,24 +13,24 @@ class Parent extends Model {
         realation: Model.BelongsToOneRelation,
         modelClass: Person,
         join: {
-          from: `${tablenames.spouse}.father_id`,
-          to: `${tablenames.person}.id`,
+          from: `${tableNames.spouse}.father_id`,
+          to: `${tableNames.person}.id`,
         },
       },
       mother: {
         realation: Model.BelongsToOneRelation,
         modelClass: Person,
         join: {
-          from: `${tablenames.spouse}.mother_id`,
-          to: `${tablenames.person}.id`,
+          from: `${tableNames.spouse}.mother_id`,
+          to: `${tableNames.person}.id`,
         },
       },
       child: {
         realation: Model.BelongsToOneRelation,
         modelClass: Person,
         join: {
-          from: `${tablenames.spouse}.child_id`,
-          to: `${tablenames.person}.id`,
+          from: `${tableNames.spouse}.child_id`,
+          to: `${tableNames.person}.id`,
         },
       },
     }

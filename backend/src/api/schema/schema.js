@@ -36,6 +36,53 @@ const PersonType = new GraphQLObjectType({
         return await Place.query().findById(parseInt(parent.place_id))
       },
     },
+    spouses: {
+      type: new GraphQLList(PersonType),
+      async resolve(parent, args) {
+        const { id, gender } = parent
+        const spouses = await Spouse.query().where(
+          gender === 'female' ? 'wife_id' : 'husband_id',
+          id
+        )
+        return spouses.map(
+          async spouse =>
+            await Person.query().findById(
+              gender === 'male' ? spouse.wife_id : spouse.husband_id
+            )
+        )
+      },
+    },
+    children: {
+      type: new GraphQLList(PersonType),
+      async resolve(parent, args) {
+        const { id, gender } = parent
+        const children = await Parent.query().where(
+          gender === 'male' ? 'father_id' : 'mother_id',
+          id
+        )
+        return children.map(
+          async ({ child_id }) => await Person.query().findById(child_id)
+        )
+      },
+    },
+    parents: {
+      type: new GraphQLList(PersonType),
+      async resolve(parent, args) {
+        const parents = await Parent.query()
+          .where('child_id', parent.id)
+          .first()
+        return parents !== undefined
+          ? [
+              parents.father_id
+                ? await Person.query().findById(parseInt(parents.father_id))
+                : null,
+              parents.mother_id
+                ? await Person.query().findById(parseInt(parents.mother_id))
+                : null,
+            ]
+          : null
+      },
+    },
   }),
 })
 
@@ -108,6 +155,12 @@ const RootQuery = new GraphQLObjectType({
         return await Person.query().findById(parseInt(args.id))
       },
     },
+    persons: {
+      type: new GraphQLList(PersonType),
+      async resolve(parent, args) {
+        return await Person.query()
+      },
+    },
     spouse: {
       type: SpouseType,
       args: { id: { type: GraphQLID } },
@@ -150,6 +203,24 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         return await Person.query().insertAndFetch(args)
+      },
+    },
+    patchPerson: {
+      type: PersonType,
+      args: {
+        id: { type: GraphQLID },
+        first: { type: GraphQLString },
+        last: { type: GraphQLString },
+        birth: { type: GraphQLString },
+        death: { type: GraphQLString },
+        gender: { type: GraphQLString },
+        place_id: { type: GraphQLID },
+      },
+      async resolve(parent, args) {
+        return await Person.query().patchAndFetchById(parseInt(args.id), {
+          ...args,
+          id: parseInt(args.id),
+        })
       },
     },
     addSpouse: {

@@ -13,16 +13,16 @@ class Spouse extends Model {
         realation: Model.BelongsToOneRelation,
         modelClass: Person,
         join: {
-          from: `${tablenames.spouse}.husband_id`,
-          to: `${tablenames.person}.id`,
+          from: `${tableNames.spouse}.husband_id`,
+          to: `${tableNames.person}.id`,
         },
       },
       wife: {
         realation: Model.BelongsToOneRelation,
         modelClass: Person,
         join: {
-          from: `${tablenames.spouse}.wife_id`,
-          to: `${tablenames.person}.id`,
+          from: `${tableNames.spouse}.wife_id`,
+          to: `${tableNames.person}.id`,
         },
       },
     }
